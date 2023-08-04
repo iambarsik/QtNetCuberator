@@ -40,19 +40,6 @@ void game_main_class::update()  {
 
         } else {
 
-            player->update_y();
-            if(level.getYCollide(player->body())) {
-                player->collideY();
-            }
-            player->update_x();
-            if(level.getXCollide(player->body())) {
-                player->collideX();
-            }
-            player->live();
-
-
-
-
             if(client->isConnected())   {
                 if(buttons_id != -1)    {
                     game_network_command c1;
