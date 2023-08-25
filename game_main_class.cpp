@@ -73,6 +73,8 @@ game_main_class::game_main_class(int tile_size, double g)
                 this,&game_main_class::slotReadCommand);
         connect(server,&game_server::signalNewClientConnected,
                 this,&game_main_class::slotNewClientConnected);
+        connect(server,&game_server::signalClientHasDisconnected,
+                this,&game_main_class::slotClientHasConnected);
     } else {
         client = new game_client(CurrentNode);
         //connect(STR_client, SIGNAL(signalPackageFromServer(QByteArray)),
@@ -81,17 +83,6 @@ game_main_class::game_main_class(int tile_size, double g)
         connect(client,&game_client::signalCommandFromServer,
                 this,&game_main_class::slotReadCommand);
     }
-
-
-
-
-
-
-
-
-
-
-
 }
 
 qint32 game_main_class::timeNow()   {
@@ -270,6 +261,32 @@ void game_main_class::slotReadCommand(game_network_command command) {
                             p->setY(command.par2.toDouble());
                         }
                     }
+                break;                    
+                case game_command_list::set_player_vx:
+                    //qDebug() << "Input command: " << command.code << ", pars: " << command.par1.toInt() << " " << command.par2.toDouble();
+                    for(game_player * p : players)  {
+                        if(p->id() == command.par1.toInt()) {
+                            p->set_vx(command.par2.toDouble());
+                        }
+                    }
+                break;
+                case game_command_list::set_player_vy:
+                    //qDebug() << "Input command: " << command.code << ", pars: " << command.par1.toInt() << " " << command.par2.toDouble();
+                    for(game_player * p : players)  {
+                        if(p->id() == command.par1.toInt()) {
+                            p->set_vy(command.par2.toDouble());
+                        }
+                    }
+                break;
+                case game_command_list::remove_player:
+                    qDebug() << "Try to delete player";
+                    for(game_player * p : players)  {
+                        if(p->id() == command.par1.toInt()) {
+                            players.removeOne(p);
+                            qDebug() << "Player is deleted";
+                            break;
+                        }
+                    }
                 break;
                 default:
                     qDebug() << "client has got unknown command " << command.code;
@@ -285,14 +302,7 @@ void game_main_class::slotNewClientConnected(QTcpSocket *sock)  {
         return;
     }
 
-    /*
-    game_network_command command;
-    command.code = (uint)game_command_list::set_control_id;
-    command.par1 = (qint64)player_id;
-    command.par2 = (qint64)0;
-    command.time = timeNow();
-    server->addCommandToClient(sock,command);
-    */
+    NodeIDs.append({sock, player_id});
 
     server->addCommandToClient(sock,{game_command_list::set_control_id, game_network_param(player_id), 0, timeNow()});
     for(game_player * p : players)   {
@@ -300,4 +310,18 @@ void game_main_class::slotNewClientConnected(QTcpSocket *sock)  {
         qDebug() << "send player add info to client";
     }
     server->addCommand({game_command_list::add_player, (game_network_param)player_id, (game_network_param)game_player_type::cube1, timeNow()});
+}
+
+void game_main_class::slotClientHasConnected(QTcpSocket *sock)  {
+    qint64 player_id = -1;
+    for(game_network_id &gn : NodeIDs)  {
+        if(gn.sock == sock)   {
+            player_id = gn.id;
+            break;
+        }
+    }
+    if(player_id == -1)
+        return;
+    server->addCommand({game_command_list::remove_player, (game_network_param)player_id, (game_network_param)0, timeNow()});
+    qDebug() << "cleint is deleted";
 }

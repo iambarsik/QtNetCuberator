@@ -109,6 +109,17 @@ public:
     void restore_body()     { m_body = m_old_body; }
     void update_body()  { m_old_body = m_body; }
 
+    bool collideBody(game_body gb)  {
+        if(
+                (m_body.x() + m_body.width() >= gb.x() && m_body.x() <= gb.x() + gb.width()) &&
+                (m_body.y() + m_body.height() >= gb.y() && m_body.y() <= gb.y() + gb.height())
+          )
+        {
+            return true;
+        }
+        return false;
+    }
+
     void setX(double x) { m_body.setX(x); }
     void setY(double y) { m_body.setY(y); }
     void set_g(double g)    { m_g = g; }
@@ -231,7 +242,7 @@ public:
         return arr;
     }
     void popNetworkData(QByteArray arr)   {
-
+        Q_UNUSED(arr);
     }
 
 private:

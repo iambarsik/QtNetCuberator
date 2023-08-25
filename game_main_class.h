@@ -57,6 +57,7 @@ public slots:
     void setClientInformation(int count);
     void slotReadCommand(game_network_command command);
     void slotNewClientConnected(QTcpSocket *sock);
+    void slotClientHasConnected(QTcpSocket *sock);
 
 
 private:
@@ -82,6 +83,7 @@ private:
 
     game_network_node CurrentNode;
     QList<game_network_node> NA_Nodes;
+    QList<game_network_id> NodeIDs;
 
     bool bServerNode;
     int game_network_player_count;

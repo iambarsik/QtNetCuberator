@@ -3,6 +3,7 @@
 #define GAME_NETWORK_DEF_H
 
 #include <QtCore>
+#include <QTcpSocket>
 
 struct game_network_param    {
     QByteArray data;
@@ -80,6 +81,11 @@ struct game_network_param    {
     }
 };
 
+struct game_network_id  {
+    QTcpSocket *sock;
+    qint64 id;
+};
+
 struct game_network_node  {
     QString name;
     QString host;
@@ -107,20 +113,29 @@ enum game_network_command_type   {
 
 enum game_command_list  {
     set_control_id = 0x0001000, /* server     id,       0,     time */
+
     add_player,                 /* server     id,    type,     time */
     remove_player,              /* server     id,       0,     time */
     set_player_x,               /* server     id,       x,     time */
     set_player_y,               /* server     id,       y,     time */
-
-    set_player_info,
-
-
-
+    set_player_vx,              /* server     id,      vx,     time */
+    set_player_vy,              /* server     id,      vy,     time */
 
     set_buttons_1,              /* client     id, 8 bytes,     time */
                                 /*    u, r, d, l, a1, a2, a3, a4    */
     set_buttons_2,              /* client     id, 8 bytes,     time */
                                 /*    a5, a6, a7, a8, m, 0, 0, 0    */
+
+    set_player_info,
+
+    add_bullet,                 /* server     id,    type,     time */
+    remove_bullet,              /* server     id,       0,     time */
+    set_bullet_x,               /* server     id,       x,     time */
+    set_bullet_y,               /* server     id,       y,     time */
+    set_bullet_vx,              /* server     id,      vx,     time */
+    set_bullet_vy,              /* server     id,      vy,     time */
+
+
 
 
 

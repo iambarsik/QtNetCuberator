@@ -9,7 +9,6 @@ game_server::game_server(game_network_node NodeInfo)    {
        connect(m_server, &QTcpServer::newConnection,
                this, &game_server::newConnection);
 
-
         qDebug() << "System :: server is listening...";
     } else {
         qDebug() << QString("System :: unable to start server. Code = %1").arg(m_server->errorString());
@@ -35,10 +34,11 @@ game_server::~game_server() {
 }
 
 void game_server::addCommand(game_network_command command)  {
-    qDebug() << QString("Sending command to all clients: %1 %2 %3").arg(command.code).arg(command.par1.toInt()).arg(command.par2.toDouble());
+    //qDebug() << QString("Sending command to all clients: %1 %2 %3").arg(command.code).arg(command.par1.toInt()).arg(command.par2.toDouble());
     //qDebug() << QString("Sending command to all clients: %1").arg(command.code) << command.par1.data << command.par2.data;
     for(auto sock : connection_set) {
-        if(sock == nullptr) {
+        if(sock == nullptr || sock->state() != QAbstractSocket::ConnectedState )   {
+            qDebug() << "Cant send a command to client because it is unconnected";
             continue;
         }
         bufferSend.clear();
@@ -54,7 +54,7 @@ void game_server::addCommand(game_network_command command)  {
 }
 
 void game_server::addCommandToClient(QTcpSocket *sock, game_network_command command)    {
-    qDebug() << QString("Sending single command: %1").arg(command.code) << command.par1.data << command.par2.data;
+    //qDebug() << QString("Sending single command: %1").arg(command.code) << command.par1.data << command.par2.data;
 
     //qDebug () << command.par1.toInt();
     //qDebug () << command.par2.toInt();
@@ -110,10 +110,11 @@ void game_server::discardSocket()   {
     QTcpSocket* socket = reinterpret_cast<QTcpSocket*>(sender());
     QSet<QTcpSocket*>::iterator it = connection_set.find(socket);
     if (it != connection_set.end()){
+
         qDebug() << QString("Node has disconnected").arg(socket->socketDescriptor());
         connection_set.remove(*it);
     }
-    socket->deleteLater();
+    //socket->deleteLater();
     emit signalClientsAreConnected(connection_set.size());
 }
 

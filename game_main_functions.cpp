@@ -21,8 +21,96 @@ void game_main_class::update()  {
         }
         */
 
-        if(bServerNode) {
+        player->update_y();
+        if(level.getYCollide(player->body())) {
+            player->collideY();
+        }
+        for(game_player * p: players)   {
+            if(player->id() == p->id())
+                continue;
+            if(player->collideBody(p->body()))  {
 
+                double vy = player->vy();
+                player->set_vy(-vy);
+                p->set_vy(vy);
+                player->collideY();
+                break;
+            }
+        }
+
+        player->update_x();
+        if(level.getXCollide(player->body())) {
+            player->collideX();
+        }
+        for(game_player * p: players)   {
+            if(player->id() == p->id())
+                continue;
+            if(player->collideBody(p->body()))  {
+                double vx = player->vx();
+                player->set_vx(-vx);
+                p->set_vx(vx);
+                player->collideX();
+                break;
+            }
+        }
+
+        player->live();
+
+
+
+
+
+
+        if(bServerNode) {
+/*
+            player->update_y();
+            if(level.getYCollide(player->body())) {
+                player->collideY();
+            }
+            for(game_player * p: players)   {
+                if(player->id() == p->id())
+                    continue;
+                if(player->collideBody(p->body()))  {
+
+                    double vy = player->vy();
+                    player->set_vy(-vy);
+                    p->set_vy(vy);
+                    player->collideY();
+                    break;
+                }
+            }
+
+            player->update_x();
+            if(level.getXCollide(player->body())) {
+                player->collideX();
+            }
+            for(game_player * p: players)   {
+                if(player->id() == p->id())
+                    continue;
+                if(player->collideBody(p->body()))  {
+                    double vx = player->vx();
+                    player->set_vx(-vx);
+                    p->set_vx(vx);
+                    player->collideX();
+                    break;
+                }
+            }
+
+            player->live();
+*/
+
+
+
+
+            if(server->getClientCount() > 0)    {
+                server->addCommand({game_command_list::set_player_x,game_network_param(player->id()),game_network_param(player->x()),timeNow()});
+                server->addCommand({game_command_list::set_player_y,game_network_param(player->id()),game_network_param(player->y()),timeNow()});
+                server->addCommand({game_command_list::set_player_vx,game_network_param(player->id()),game_network_param(player->vx()),timeNow()});
+                server->addCommand({game_command_list::set_player_vy,game_network_param(player->id()),game_network_param(player->vy()),timeNow()});
+            }
+
+        } else {
+/*
             player->update_y();
             if(level.getYCollide(player->body())) {
                 player->collideY();
@@ -32,14 +120,7 @@ void game_main_class::update()  {
                 player->collideX();
             }
             player->live();
-
-            if(server->getClientCount() > 0)    {
-                server->addCommand({game_command_list::set_player_x,game_network_param(player->id()),game_network_param(player->x()),timeNow()});
-                server->addCommand({game_command_list::set_player_y,game_network_param(player->id()),game_network_param(player->y()),timeNow()});
-            }
-
-        } else {
-
+*/
             if(client->isConnected())   {
                 if(buttons_id != -1)    {
                     game_network_command c1;

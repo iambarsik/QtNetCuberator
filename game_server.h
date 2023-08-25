@@ -26,6 +26,7 @@ public:
 
 signals:
     void signalNewClientConnected(QTcpSocket *sock);
+    void signalClientHasDisconnected(QTcpSocket *sock);
     void signalClientsAreConnected(int);
     void signalCommandFromClient(game_network_command);
 
